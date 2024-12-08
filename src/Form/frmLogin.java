@@ -5,7 +5,7 @@
 package Form;
 
 import DB.DBAccess;
-import java.sql.ResultSet;
+import java.sql.*;
 import javax.swing.JOptionPane;
 
 /**
@@ -86,30 +86,41 @@ public class frmLogin extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnloginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnloginActionPerformed
-         try {
-    String username = txtloginname.getText();
-    String password = txtloginpassword.getText();
-    DBAccess acc = new DBAccess();
-    
-    // Thực hiện truy vấn
-    ResultSet rs = acc.Query("SELECT * FROM Users WHERE Username = " + username + " AND PasswordHash = " + password + "");
-    
-    // Kiểm tra kết quả
-    if (rs.next()) {
-        JOptionPane.showMessageDialog(this, "Đăng nhập thành công");
+        try {
+            String username = txtloginname.getText();
+            String password = txtloginpassword.getText();
 
-        // Hiển thị frmChatApp
-        frmChatApp chatapp = new frmChatApp();
-        chatapp.setVisible(true);
-        this.dispose(); // Ẩn/đóng cửa sổ đăng nhập
-    } else {
-        JOptionPane.showMessageDialog(this, "Sai tên đăng nhập hoặc mật khẩu");
-    }
-} catch (Exception e) {
-    // Hiển thị lỗi nếu có
-    e.printStackTrace();
-    JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi: " + e.getMessage());
-}
+            // Đảm bảo bảo vệ câu truy vấn chống SQL Injection (dùng PreparedStatement)
+            DBAccess acc = new DBAccess();
+
+            // Sử dụng PreparedStatement để bảo vệ truy vấn khỏi SQL Injection
+            String query = "SELECT * FROM Users WHERE Username = ? AND PasswordHash = ?";
+
+            // Sử dụng PreparedStatement để thay thế các tham số
+            PreparedStatement pst = acc.getConnection().prepareStatement(query);
+            pst.setString(1, username);  // Thay thế ? với username
+            pst.setString(2, password);  // Thay thế ? với password
+
+            // Thực hiện truy vấn
+            ResultSet rs = pst.executeQuery();
+
+            // Kiểm tra kết quả
+            if (rs.next()) {
+                JOptionPane.showMessageDialog(this, "Đăng nhập thành công");
+
+                // Hiển thị frmChatApp
+                frmChatApp chatapp = new frmChatApp();
+                chatapp.setVisible(true);
+                this.dispose(); // Ẩn/đóng cửa sổ đăng nhập
+            } else {
+                JOptionPane.showMessageDialog(this, "Sai tên đăng nhập hoặc mật khẩu");
+            }
+        } catch (Exception e) {
+            // Hiển thị lỗi nếu có
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi: " + e.getMessage());
+        }
+
     }//GEN-LAST:event_btnloginActionPerformed
 
     /**

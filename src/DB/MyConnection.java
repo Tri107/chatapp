@@ -18,8 +18,8 @@ import javax.swing.JOptionPane;
 public class MyConnection {
    public Connection getConnection(){
        try {
-           Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-           String url = "jdbc:sqlserver://localhost:1433;Database=ChatApp;user=Tri;password=tri;encrypt=true;trustServerCertificate=true";
+           Class.forName("com.mysql.jdbc.Driver");
+           String url = "jdbc:mysql://localhost/chatapp?user=root&password=";
            Connection con = DriverManager.getConnection(url);
            return con;
        } catch (Exception e) {
