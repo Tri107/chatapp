@@ -4,6 +4,16 @@
  */
 package Form;
 
+import DB.DBAccess;
+import Form.frmOTP;
+import chatapp.EmailSender;
+import java.io.*;
+import java.net.Socket;
+import javax.swing.JOptionPane;
+import java.sql.ResultSet;
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+
 /**
  *
  * @author DELL
@@ -31,8 +41,13 @@ public class frmRegister extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        btndangki = new javax.swing.JButton();
+        btntrolai = new javax.swing.JButton();
+        txttenhienthi = new javax.swing.JTextField();
+        txtemail = new javax.swing.JTextField();
+        txttendangnhap = new javax.swing.JTextField();
+        txtmatkhau = new javax.swing.JTextField();
+        txtxacnhanmk = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -46,53 +61,159 @@ public class frmRegister extends javax.swing.JFrame {
 
         jLabel5.setText("Email");
 
-        jButton1.setText("jButton1");
+        btndangki.setText("Đăng kí");
+        btndangki.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btndangkiActionPerformed(evt);
+            }
+        });
 
-        jButton2.setText("jButton2");
+        btntrolai.setText("Trở lại");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addGap(49, 49, 49)
+                .addComponent(btndangki)
+                .addGap(157, 157, 157)
+                .addComponent(btntrolai)
+                .addContainerGap(184, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(41, 41, 41)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel4)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel5)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel3))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(txttenhienthi)
+                    .addComponent(txtemail, javax.swing.GroupLayout.PREFERRED_SIZE, 274, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(41, 41, 41)
+                        .addGap(1, 1, 1)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel5)
-                            .addComponent(jLabel4)
-                            .addComponent(jLabel2)
-                            .addComponent(jLabel1)
-                            .addComponent(jLabel3)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(49, 49, 49)
-                        .addComponent(jButton1)
-                        .addGap(157, 157, 157)
-                        .addComponent(jButton2)))
-                .addContainerGap(178, Short.MAX_VALUE))
+                            .addComponent(txttendangnhap)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(txtmatkhau, javax.swing.GroupLayout.PREFERRED_SIZE, 273, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(txtxacnhanmk, javax.swing.GroupLayout.PREFERRED_SIZE, 268, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(0, 0, Short.MAX_VALUE)))))
+                .addGap(99, 99, 99))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(49, 49, 49)
-                .addComponent(jLabel1)
-                .addGap(18, 18, 18)
-                .addComponent(jLabel5)
-                .addGap(27, 27, 27)
-                .addComponent(jLabel2)
-                .addGap(26, 26, 26)
-                .addComponent(jLabel3)
-                .addGap(18, 18, 18)
-                .addComponent(jLabel4)
-                .addGap(64, 64, 64)
+                .addGap(44, 44, 44)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
-                    .addComponent(jButton2))
-                .addContainerGap(102, Short.MAX_VALUE))
+                    .addComponent(jLabel1)
+                    .addComponent(txttenhienthi, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(txtemail, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(17, 17, 17)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(txttendangnhap, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(16, 16, 16)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(txtmatkhau, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(txtxacnhanmk, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(59, 59, 59)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btndangki)
+                    .addComponent(btntrolai))
+                .addContainerGap(82, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btndangkiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btndangkiActionPerformed
+         try {
+            // Lấy thông tin từ form
+            String tenHienThi = txttenhienthi.getText().trim();
+            String email = txtemail.getText().trim();
+            String tenDangNhap = txttendangnhap.getText().trim();
+            String matKhau = txtmatkhau.getText().trim();
+            String xacNhanMK = txtxacnhanmk.getText().trim();
+
+            // Kiểm tra thông tin nhập liệu
+            if (tenHienThi.isEmpty() || email.isEmpty() || tenDangNhap.isEmpty() || matKhau.isEmpty() || xacNhanMK.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!");
+                return;
+            }
+
+            if (!matKhau.equals(xacNhanMK)) {
+                JOptionPane.showMessageDialog(this, "Mật khẩu và xác nhận mật khẩu không khớp!");
+                return;
+            }
+
+            // Kiểm tra email hợp lệ
+            if (!email.matches("^[\\w.%+-]+@[\\w.-]+\\.[a-zA-Z]{2,6}$")) {
+                JOptionPane.showMessageDialog(this, "Email không hợp lệ!");
+                return;
+            }
+
+            // Mã hóa mật khẩu (giả sử bạn đã có hàm băm mật khẩu)
+            //String hashedPassword = HashUtil.hashPassword(matKhau); // Dùng thư viện băm mật khẩu.
+
+            // Kết nối tới cơ sở dữ liệu
+            DBAccess db = new DBAccess();
+
+            // Kiểm tra tài khoản đã tồn tại chưa
+            ResultSet rsCheck = db.Query("SELECT * FROM Users WHERE Username = '" + tenDangNhap + "' OR Email = '" + email + "'");
+            if (rsCheck.next()) {
+                JOptionPane.showMessageDialog(this, "Tên đăng nhập hoặc email đã tồn tại!");
+                return;
+            }
+
+            // Thêm người dùng mới vào cơ sở dữ liệu
+            String query = "INSERT INTO Users (DisplayName, Username, PasswordHash, Email) VALUES ('"
+                    + tenHienThi + "', '" + tenDangNhap + "', '" + matKhau + "', '" + email + "')";
+            int result = db.Update(query);
+
+            if (result > 0) {
+                // Lấy UserID của tài khoản vừa tạo
+                ResultSet rs = db.Query("SELECT UserID FROM Users WHERE Email = '" + email + "'");
+                if (rs.next()) {
+                    int userId = rs.getInt("UserID");
+
+                    // Tạo OTP và gửi email
+                    String otp = String.format("%06d", new java.util.Random().nextInt(1000000));
+                    long expiryTime = System.currentTimeMillis() + 5 * 60 * 1000; // 5 phút
+                    EmailSender.sendEmail(email, "Xác nhận đăng ký ChatApp", 
+                            "Chào bạn,\n\nMã OTP của bạn là: " + otp + "\nMã này sẽ hết hạn sau 5 phút.\n\nChatApp Team");
+
+                    // Lưu OTP vào cơ sở dữ liệu
+                    
+
+                    //db.Update(otpQuery);
+
+                    // Thông báo và chuyển sang form OTP
+                    JOptionPane.showMessageDialog(this, "Mã OTP đã được gửi tới email của bạn.");
+                    new frmOTP(userId).setVisible(true);
+                    this.dispose();
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Lỗi trong quá trình đăng ký.");
+            }
+
+            db.close();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Lỗi: " + e.getMessage());
+            e.printStackTrace();
+        }
+    
+
+    }//GEN-LAST:event_btndangkiActionPerformed
 
     /**
      * @param args the command line arguments
@@ -130,12 +251,17 @@ public class frmRegister extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
+    private javax.swing.JButton btndangki;
+    private javax.swing.JButton btntrolai;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JTextField txtemail;
+    private javax.swing.JTextField txtmatkhau;
+    private javax.swing.JTextField txttendangnhap;
+    private javax.swing.JTextField txttenhienthi;
+    private javax.swing.JTextField txtxacnhanmk;
     // End of variables declaration//GEN-END:variables
 }

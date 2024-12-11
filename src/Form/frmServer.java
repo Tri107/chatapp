@@ -3,18 +3,91 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package Form;
-
+import java.io.*;
+import java.net.*;
+import java.util.*;
 /**
  *
  * @author DELL
  */
 public class frmServer extends javax.swing.JFrame {
+     private ServerSocket serverSocket;
+    private final List<ClientHandler> clients = Collections.synchronizedList(new ArrayList<>());
 
     /**
      * Creates new form frmServer
      */
     public frmServer() {
         initComponents();
+        btnkhoidong.addActionListener(evt -> startServer());
+    }
+    private void startServer() {
+        try {
+            serverSocket = new ServerSocket(8386); 
+            txaserver.append("Server đã khởi động tại cổng 8386\n");
+
+            Thread acceptThread = new Thread(() -> {
+                while (!serverSocket.isClosed()) {
+                    try {
+                        Socket clientSocket = serverSocket.accept();
+                        txaserver.append("Client mới đã kết nối: " + clientSocket.getInetAddress() + "\n");
+                        ClientHandler clientHandler = new ClientHandler(clientSocket);
+                        clients.add(clientHandler);
+                        new Thread(clientHandler).start();
+                    } catch (IOException e) {
+                        txaserver.append("Lỗi khi chấp nhận kết nối: " + e.getMessage() + "\n");
+                    }
+                }
+            });
+            acceptThread.start();
+
+        } catch (IOException e) {
+            txaserver.append("Lỗi khởi động server: " + e.getMessage() + "\n");
+        }
+    }
+
+    private class ClientHandler implements Runnable {
+        private final Socket clientSocket;
+        private PrintWriter out;
+        private BufferedReader in;
+
+        public ClientHandler(Socket socket) {
+            this.clientSocket = socket;
+        }
+
+        @Override
+        public void run() {
+            try {
+                in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                out = new PrintWriter(clientSocket.getOutputStream(), true);
+
+                String message;
+                while ((message = in.readLine()) != null) {
+                    txaserver.append("Client gửi: " + message + "\n");
+                    broadcastMessage(message);
+                }
+
+            } catch (IOException e) {
+                txaserver.append("Lỗi với client: " + e.getMessage() + "\n");
+            } finally {
+                try {
+                    clientSocket.close();
+                } catch (IOException e) {
+                    txaserver.append("Lỗi khi đóng kết nối client: " + e.getMessage() + "\n");
+                }
+                clients.remove(this);
+            }
+        }
+
+        private void broadcastMessage(String message) {
+            synchronized (clients) {
+                for (ClientHandler client : clients) {
+                    if (client != this) {
+                        client.out.println(message);
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -26,17 +99,37 @@ public class frmServer extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jScrollPane1 = new javax.swing.JScrollPane();
+        txaserver = new javax.swing.JTextArea();
+        btnkhoidong = new javax.swing.JButton();
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        txaserver.setColumns(20);
+        txaserver.setRows(5);
+        jScrollPane1.setViewportView(txaserver);
+
+        btnkhoidong.setText("jButton1");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(44, 44, 44)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(43, 43, 43)
+                .addComponent(btnkhoidong)
+                .addContainerGap(57, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(45, 45, 45)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnkhoidong)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 223, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(163, Short.MAX_VALUE))
         );
 
         pack();
@@ -78,5 +171,8 @@ public class frmServer extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnkhoidong;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextArea txaserver;
     // End of variables declaration//GEN-END:variables
 }

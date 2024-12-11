@@ -5,16 +5,29 @@
 
 package Form;
 
+import DB.DBAccess;
+import javax.swing.JOptionPane;
+import java.sql.ResultSet;
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+
 /**
  *
  * @author DELL
  */
 public class frmOTP extends javax.swing.JFrame {
+    private int userId;
 
     /** Creates new form frmOTP */
     public frmOTP() {
+        this.userId = userId;
+    initComponents();
+    }
+    public frmOTP(int userId) {
+        this.userId = userId;
         initComponents();
     }
+    
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -25,21 +38,111 @@ public class frmOTP extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        txtotp = new javax.swing.JTextField();
+        btnxacnhan = new javax.swing.JButton();
+        btnguilai = new javax.swing.JButton();
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        btnxacnhan.setText("xac nhan");
+        btnxacnhan.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnxacnhanActionPerformed(evt);
+            }
+        });
+
+        btnguilai.setText("gui lai");
+        btnguilai.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnguilaiActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 545, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(123, 123, 123)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(btnxacnhan)
+                        .addGap(158, 158, 158)
+                        .addComponent(btnguilai))
+                    .addComponent(txtotp, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(159, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 385, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(115, 115, 115)
+                .addComponent(txtotp, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(78, 78, 78)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnxacnhan)
+                    .addComponent(btnguilai))
+                .addContainerGap(155, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnxacnhanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnxacnhanActionPerformed
+        String otp = txtotp.getText();
+
+    if (otp.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Vui lòng nhập mã OTP!");
+        return;
+    }
+
+    try {
+        DBAccess db = new DBAccess();
+        String query = "SELECT * FROM OTPs WHERE UserID = " + userId + " AND OTPCode = '" + otp
+                + "' AND ExpiryTime > CURRENT_TIMESTAMP AND IsUsed = FALSE";
+        ResultSet rs = db.Query(query);
+
+        if (rs.next()) {
+            // Cập nhật trạng thái xác minh
+            String updateUserQuery = "UPDATE Users SET IsVerified = TRUE WHERE UserID = " + userId;
+            db.Update(updateUserQuery);
+
+            // Đánh dấu OTP đã sử dụng
+            String updateOtpQuery = "UPDATE OTPs SET IsUsed = TRUE WHERE OTPID = " + rs.getInt("OTPID");
+            db.Update(updateOtpQuery);
+
+            JOptionPane.showMessageDialog(this, "Xác minh thành công!");
+            this.dispose();
+        } else {
+            JOptionPane.showMessageDialog(this, "Mã OTP không hợp lệ hoặc đã hết hạn!");
+        }
+
+        db.close();
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Lỗi: " + e.getMessage());
+    }
+    }//GEN-LAST:event_btnxacnhanActionPerformed
+
+    private void btnguilaiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnguilaiActionPerformed
+        try {
+        String otp = String.format("%06d", new java.util.Random().nextInt(1000000));
+        long expiryTime = System.currentTimeMillis() + 5 * 60 * 1000; // 5 phút
+
+        DBAccess db = new DBAccess();
+        String query = "UPDATE OTPs SET OTPCode = '" + otp + "', ExpiryTime = '"
+                + new java.sql.Timestamp(expiryTime) + "', IsUsed = FALSE WHERE UserID = " + userId;
+        int result = db.Update(query);
+
+        if (result > 0) {
+            JOptionPane.showMessageDialog(this, "Mã OTP mới đã được gửi tới email của bạn!");
+        } else {
+            JOptionPane.showMessageDialog(this, "Lỗi khi gửi lại mã OTP.");
+        }
+
+        db.close();
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Lỗi: " + e.getMessage());
+    }
+    }//GEN-LAST:event_btnguilaiActionPerformed
 
     /**
      * @param args the command line arguments
@@ -77,6 +180,9 @@ public class frmOTP extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnguilai;
+    private javax.swing.JButton btnxacnhan;
+    private javax.swing.JTextField txtotp;
     // End of variables declaration//GEN-END:variables
 
 }

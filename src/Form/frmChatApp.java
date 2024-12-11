@@ -3,18 +3,70 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package Form;
-
+import java.io.*;
+import java.net.*;
 /**
  *
  * @author DELL
  */
 public class frmChatApp extends javax.swing.JFrame {
+     private String username;
+    private Socket socket;
+    private PrintWriter out;
+    private BufferedReader in;
 
     /**
      * Creates new form frmChatApp
      */
+    public frmChatApp(String username) {
+        initComponents();
+        this.username = username;
+        txtusername.setText(username); 
+        
+        connectToServer();
+        btngui.addActionListener(evt -> sendMessage());
+    }
     public frmChatApp() {
         initComponents();
+        this.username = username;
+        txtusername.setText(username); 
+        
+        connectToServer();
+        btngui.addActionListener(evt -> sendMessage());
+    }
+    
+     private void connectToServer() {
+        try {
+ 
+            socket = new Socket("localhost", 8386);
+            out = new PrintWriter(socket.getOutputStream(), true);
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            Thread receiveThread = new Thread(() -> {
+                try {
+                    String message;
+                    while ((message = in.readLine()) != null) {
+                        
+                        txaboxchat.append(message + "\n");
+                    }
+                } catch (IOException e) {
+                    txaboxchat.append("Lỗi nhận tin nhắn: " + e.getMessage() + "\n");
+                }
+            });
+            receiveThread.start();
+
+        } catch (IOException e) {
+            txaboxchat.append("Không thể kết nối tới server: " + e.getMessage() + "\n");
+        }
+    }
+
+    private void sendMessage() {
+        String message = txtchat.getText().trim();
+        if (!message.isEmpty()) {
+            out.println(username + ": " + message); 
+            txaboxchat.append( message + "\n"); 
+            txtchat.setText("");
+        }
     }
 
     /**
@@ -27,42 +79,52 @@ public class frmChatApp extends javax.swing.JFrame {
     private void initComponents() {
 
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
-        jTextField1 = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
+        txaboxchat = new javax.swing.JTextArea();
+        txtchat = new javax.swing.JTextField();
+        btngui = new javax.swing.JButton();
+        txtusername = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jScrollPane1.setViewportView(jTextArea1);
+        txaboxchat.setColumns(20);
+        txaboxchat.setRows(5);
+        jScrollPane1.setViewportView(txaboxchat);
 
-        jButton1.setText("Send");
+        btngui.setText("Send");
+
+        txtusername.setEnabled(false);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(92, 92, 92)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 436, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 436, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(27, 27, 27)
-                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(92, 92, 92)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 436, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(txtchat, javax.swing.GroupLayout.PREFERRED_SIZE, 436, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(27, 27, 27)
+                                .addComponent(btngui, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(14, 14, 14)
+                        .addComponent(txtusername, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(51, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(47, 47, 47)
+                .addGap(9, 9, 9)
+                .addComponent(txtusername, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 277, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, 55, Short.MAX_VALUE)
-                    .addComponent(jTextField1))
-                .addContainerGap(29, Short.MAX_VALUE))
+                    .addComponent(btngui, javax.swing.GroupLayout.DEFAULT_SIZE, 55, Short.MAX_VALUE)
+                    .addComponent(txtchat))
+                .addContainerGap(23, Short.MAX_VALUE))
         );
 
         pack();
@@ -104,9 +166,10 @@ public class frmChatApp extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
+    private javax.swing.JButton btngui;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JTextField jTextField1;
+    private javax.swing.JTextArea txaboxchat;
+    private javax.swing.JTextField txtchat;
+    private javax.swing.JTextField txtusername;
     // End of variables declaration//GEN-END:variables
 }

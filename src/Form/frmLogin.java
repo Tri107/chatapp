@@ -89,34 +89,24 @@ public class frmLogin extends javax.swing.JFrame {
         try {
             String username = txtloginname.getText();
             String password = txtloginpassword.getText();
-
-            // Đảm bảo bảo vệ câu truy vấn chống SQL Injection (dùng PreparedStatement)
             DBAccess acc = new DBAccess();
-
-            // Sử dụng PreparedStatement để bảo vệ truy vấn khỏi SQL Injection
             String query = "SELECT * FROM Users WHERE Username = ? AND PasswordHash = ?";
-
-            // Sử dụng PreparedStatement để thay thế các tham số
             PreparedStatement pst = acc.getConnection().prepareStatement(query);
-            pst.setString(1, username);  // Thay thế ? với username
-            pst.setString(2, password);  // Thay thế ? với password
+            pst.setString(1, username);
+            pst.setString(2, password);
 
-            // Thực hiện truy vấn
             ResultSet rs = pst.executeQuery();
 
-            // Kiểm tra kết quả
             if (rs.next()) {
                 JOptionPane.showMessageDialog(this, "Đăng nhập thành công");
 
-                // Hiển thị frmChatApp
-                frmChatApp chatapp = new frmChatApp();
+                frmChatApp chatapp = new frmChatApp(username);
                 chatapp.setVisible(true);
-                this.dispose(); // Ẩn/đóng cửa sổ đăng nhập
+                this.dispose();
             } else {
                 JOptionPane.showMessageDialog(this, "Sai tên đăng nhập hoặc mật khẩu");
             }
         } catch (Exception e) {
-            // Hiển thị lỗi nếu có
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi: " + e.getMessage());
         }
